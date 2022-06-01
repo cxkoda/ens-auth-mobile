@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import ErrorMessage from "./ErrorMessage";
 import SuccessMessage from "./SuccessMessage";
-import QRCode from "qrcode";
 import { useParams } from "react-router-dom";
+import Scanner from "./Scanner";
 
 const verifyMessage = async ({
   message,
@@ -27,47 +27,34 @@ const verifyMessage = async ({
   }
 };
 
-export default function Challenger() {
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+export default function Verifier({ message }: { message: string }) {
+  // const [sigData, setSigData] = useState("0x0asdfasdf;cxkoda.eth");
+  const [result, setResult] = useState("");
 
-  const generateQR = () => {
-    const message = Math.random().toString();
-    let qrCodeDataUrl;
-    QRCode.toDataURL(message, { version: 2 }, function (err: any, url: any) {
-      qrCodeDataUrl = url;
-    });
-    return { message, qrCodeDataUrl };
+  const verifyData = async (data: string) => {
+    setResult(await doVerifyData(data));
   };
 
-  const { message, qrCodeDataUrl } = generateQR();
+  const doVerifyData = async (data: string) => {
+    const [signature, ens] = data.split(";");
+    const signer = ethers.utils.verifyMessage(message, signature);
 
-  // const handleVerification = async (e: any) => {
-  //   e.preventDefault();
-  //   const data = new FormData(e.target);
-  //   setSuccessMsg("");
-  //   setError("");
-  //   const isValid = await verifyMessage({
-  //     setError,
-  //     message: data.get("message"),
-  //     address: data.get("address"),
-  //     signature: data.get("signature"),
-  //   });
+    const provider = ethers.getDefaultProvider();
+    var authAddress = await provider.resolveName("auth." + ens);
 
-  //   if (isValid) {
-  //     setSuccessMsg("Signature is valid!");
-  //   } else {
-  //     setError("Invalid signature");
-  //   }
-  // };
+    if (signer !== authAddress) {
+      return `Auth/Signer mismatch: ${authAddress}/${signer}`;
+    }
+
+    // var wallet = await provider.resolveName("auth." + ens);
+
+    return "Success";
+  };
 
   return (
     <div>
-      <img src={qrCodeDataUrl} />
+      {result === "" && <Scanner onRead={verifyData} />}
+      {result !== "" && <p>result</p>}
     </div>
   );
-}
-
-export function Verifier({ message }: { message: string }) {
-  return <div></div>;
 }

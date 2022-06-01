@@ -4,9 +4,7 @@ import ErrorMessage from "./ErrorMessage";
 import SuccessMessage from "./SuccessMessage";
 import QRCode from "qrcode";
 import { useParams } from "react-router-dom";
-// import QrScanner from "qr-scanner";
-
-import QrReader from "react-web-qr-reader";
+import Scanner from "./Scanner";
 
 const verifyMessage = async ({
   message,
@@ -31,36 +29,53 @@ const verifyMessage = async ({
 };
 
 export default function Prover() {
-  const delay = 500;
+  const [ens, setENS] = useState("cxkoda.eth");
+  const [sigQR, setSigQR] = useState("");
 
-  const previewStyle = {
-    height: 240,
-    width: 320,
-  };
+  const sign = async (message: string) => {
+    let account = "";
 
-  const [result, setResult] = useState("No result");
-
-  const handleScan = (result: string | null) => {
-    if (result) {
-      setResult(result);
-      console.log(result);
+    if (typeof window.ethereum !== "undefined") {
+      await window.ethereum
+        .request({ method: "eth_requestAccounts" })
+        .then((accounts: string[]) => {
+          account = accounts[0];
+        })
+        .catch((err: { code: number }) => {
+          if (err.code === 4001) {
+            // EIP-1193 userRejectedRequest error
+            // If this happens, the user rejected the connection request.
+            console.log("Please connect to MetaMask.");
+          } else {
+            console.error(err);
+          }
+        });
+    } else {
+      alert("Unable to detect metamask.");
     }
-  };
 
-  const handleError = (error: string) => {
-    console.log(error);
+    const provider = new ethers.providers.Web3Provider(
+      window.ethereum as ethers.providers.ExternalProvider
+    );
+    const signer = provider.getSigner();
+    const signature = await signer.signMessage(message);
+
+    console.log(signature);
+
+    QRCode.toDataURL(
+      signature + ";" + ens,
+      { version: 10, errorCorrectionLevel: "L" },
+      function (err: any, url: any) {
+        setSigQR(url);
+        console.log(url);
+      }
+    );
   };
 
   return (
-    <>
-      <QrReader
-        delay={delay}
-        style={previewStyle}
-        onError={handleError}
-        onScan={handleScan}
-        className="reader-container"
-        facingMode="environment"
-      />
-    </>
+    <div>
+      <Scanner onRead={sign} />
+      <img src={sigQR} />
+    </div>
   );
 }

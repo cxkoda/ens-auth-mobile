@@ -19,6 +19,7 @@
     "react-scripts": "5.0.1",
     "react-web-qr-reader": "^1.0.4",
     "typescript": "^4.4.2",
+    "wagmi": "^0.4.6",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
