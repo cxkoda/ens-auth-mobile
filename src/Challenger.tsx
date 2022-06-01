@@ -33,9 +33,13 @@ export default function Challenger() {
   const generateQR = () => {
     const message = ethers.utils.hexlify(ethers.utils.randomBytes(32));
     let qrCodeDataUrl;
-    QRCode.toDataURL(message, { version: 2 }, function (err: any, url: any) {
-      qrCodeDataUrl = url;
-    });
+    QRCode.toDataURL(
+      message,
+      { version: 10, errorCorrectionLevel: "L" },
+      function (err: any, url: any) {
+        qrCodeDataUrl = url;
+      }
+    );
     return { message, qrCodeDataUrl };
   };
 
