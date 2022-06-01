@@ -31,7 +31,7 @@ const verifyMessage = async ({
 
 export default function Challenger() {
   const generateQR = () => {
-    const message = Math.random().toString();
+    const message = ethers.utils.hexlify(ethers.utils.randomBytes(32));
     let qrCodeDataUrl;
     QRCode.toDataURL(message, { version: 2 }, function (err: any, url: any) {
       qrCodeDataUrl = url;

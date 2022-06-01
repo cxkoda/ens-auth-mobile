@@ -53,8 +53,8 @@ export default function Verifier({ message }: { message: string }) {
 
   return (
     <div>
-      {result === "" && <Scanner onRead={verifyData} />}
-      {result !== "" && <p>result</p>}
+      <Scanner onRead={verifyData} />
+      <p>{result}</p>
     </div>
   );
 }

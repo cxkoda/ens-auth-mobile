@@ -13,7 +13,7 @@ export default function Scanner({
   };
 
   const handleScan = (result: any) => {
-    if (result !== null) {
+    if (result !== null && result.data !== "") {
       onRead(result.data);
       console.log(result.data);
     }

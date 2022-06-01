@@ -31,8 +31,14 @@ const verifyMessage = async ({
 export default function Prover() {
   const [ens, setENS] = useState("cxkoda.eth");
   const [sigQR, setSigQR] = useState("");
+  const [signing, setSigning] = useState(false);
 
   const sign = async (message: string) => {
+    if (signing) {
+      return;
+    }
+    setSigning(true);
+
     let account = "";
 
     if (typeof window.ethereum !== "undefined") {
@@ -54,22 +60,28 @@ export default function Prover() {
       alert("Unable to detect metamask.");
     }
 
-    const provider = new ethers.providers.Web3Provider(
-      window.ethereum as ethers.providers.ExternalProvider
-    );
-    const signer = provider.getSigner();
-    const signature = await signer.signMessage(message);
+    try {
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum as ethers.providers.ExternalProvider
+      );
+      const signer = provider.getSigner();
+      const signature = await signer.signMessage(message);
 
-    console.log(signature);
+      console.log(signature);
 
-    QRCode.toDataURL(
-      signature + ";" + ens,
-      { version: 10, errorCorrectionLevel: "L" },
-      function (err: any, url: any) {
-        setSigQR(url);
-        console.log(url);
-      }
-    );
+      QRCode.toDataURL(
+        signature + ";" + ens,
+        { version: 10, errorCorrectionLevel: "L" },
+        function (err: any, url: any) {
+          setSigQR(url);
+          console.log(url);
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+
+    setSigning(false);
   };
 
   return (
