@@ -1,60 +1,79 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import ErrorMessage from "./ErrorMessage";
-import SuccessMessage from "./SuccessMessage";
 import { useParams } from "react-router-dom";
 import Scanner from "./Scanner";
 
-const verifyMessage = async ({
-  message,
-  address,
-  signature,
-}: {
-  message: string;
-  address: string;
-  signature: string;
-}) => {
-  try {
-    const signerAddr = await ethers.utils.verifyMessage(message, signature);
-    if (signerAddr !== address) {
-      return false;
-    }
+const ERC721Abi = [
+  "function name() view returns (string)",
+  "function balanceOf(address owner) view returns (uint256)",
+];
 
-    return true;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-};
+// const provider = ethers.getDefaultProvider();
+
+const provider = new ethers.providers.JsonRpcProvider(
+  "https://mainnet.infura.io/v3/644a82f96aa445bd96e173960b7d0c31"
+);
 
 export default function Verifier({ message }: { message: string }) {
-  // const [sigData, setSigData] = useState("0x0asdfasdf;cxkoda.eth");
-  const [result, setResult] = useState("");
+  const { tokenAddress } = useParams();
+
+  if (tokenAddress !== undefined && !ethers.utils.isAddress(tokenAddress)) {
+    alert("Invalid token contract address!");
+  }
+
+  const token =
+    tokenAddress !== undefined
+      ? new ethers.Contract(tokenAddress, ERC721Abi, provider)
+      : undefined;
+
+  const [AuthenticationState, setAuthenticationState] = useState("");
+  const [tokenVerificationState, setTokenVerificationState] = useState("");
+  const [processing, setProcessing] = useState(false);
 
   const verifyData = async (data: string) => {
-    setResult(await doVerifyData(data));
+    if (processing) {
+      return;
+    }
+    setProcessing(true);
+    await doVerifyData(data);
+    setProcessing(false);
   };
 
   const doVerifyData = async (data: string) => {
     const [signature, ens] = data.split(";");
-    const signer = ethers.utils.verifyMessage(message, signature);
 
-    const provider = ethers.getDefaultProvider();
+    const signer = ethers.utils.verifyMessage(message, signature);
     var authAddress = await provider.resolveName("auth." + ens);
 
+    console.log(signer);
+
     if (signer !== authAddress) {
-      return `Auth/Signer mismatch: ${authAddress}/${signer}`;
+      setAuthenticationState(
+        `❌ Wrong signature. Auth/Signer mismatch: ${authAddress}/${signer}`
+      );
+      return;
     }
+    setAuthenticationState("✅");
 
-    // var wallet = await provider.resolveName("auth." + ens);
-
-    return "Success";
+    if (!!token) {
+      const wallet = await provider.resolveName(ens);
+      console.log(tokenAddress, wallet);
+      const balance = await token.balanceOf(wallet);
+      if (balance.gt(0)) {
+        setTokenVerificationState("✅");
+      } else {
+        setTokenVerificationState("❌ insufficient");
+        return;
+      }
+    }
   };
 
   return (
     <div>
       <Scanner onRead={verifyData} />
-      <p>{result}</p>
+      {<p>Authentication: {AuthenticationState}</p>}
+      {token && <p>Token: {tokenVerificationState}</p>}
+      {processing && <p>⏳ Processing...</p>}
     </div>
   );
 }

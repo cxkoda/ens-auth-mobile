@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import ErrorMessage from "./ErrorMessage";
-import SuccessMessage from "./SuccessMessage";
 import QRCode from "qrcode";
 import { useParams } from "react-router-dom";
 import Scanner from "./Scanner";
@@ -29,9 +27,14 @@ const verifyMessage = async ({
 };
 
 export default function Prover() {
-  const [ens, setENS] = useState("cxkoda.eth");
   const [sigQR, setSigQR] = useState("");
   const [signing, setSigning] = useState(false);
+
+  const { ens } = useParams();
+  if (ens === undefined) {
+    alert("Invalid ENS");
+    return <></>;
+  }
 
   const sign = async (message: string) => {
     if (signing) {

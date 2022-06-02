@@ -1,17 +1,15 @@
-import React from "react";
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import Home from "./Home";
-import Challenger from "./Challenger";
-import Verifier from "./Verifier";
+import ChallengeVerifier from "./ChallengeVerifier";
 import Prover from "./Prover";
 
 export const MyRouter = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/challenger" element={<Challenger />} />
-        <Route path="/verifier" element={<Verifier message="asdf" />} />
-        <Route path="/prover" element={<Prover />} />
+        <Route path="/verifier/" element={<ChallengeVerifier />} />
+        <Route path="/verifier/:tokenAddress" element={<ChallengeVerifier />} />
+        <Route path="/prover/:ens" element={<Prover />} />
         <Route path="/*" element={<Home />} />
       </Routes>
     </Router>

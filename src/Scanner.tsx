@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { QrReader } from "react-qr-reader";
 import { Result } from "@zxing/library";
 import { BrowserQRCodeReader } from "@zxing/browser";
@@ -21,17 +22,15 @@ export default function Scanner({
           sampleRate: 200,
         }}
         videoStyle={previewStyle}
-        onResult={(
+        containerStyle={previewStyle}
+        onResult={async (
           result: Result | undefined | null,
           error: Error | undefined | null,
           codeReader?: BrowserQRCodeReader
         ) => {
-          if (!!result) {
+          if (!!result && result.getText() !== "") {
+            console.log(result);
             onRead(result?.getText());
-          }
-
-          if (!!error) {
-            console.info(error);
           }
         }}
       />
