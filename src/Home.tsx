@@ -23,6 +23,12 @@ function Home() {
 
   const handleProver = (event: any) => {
     event.preventDefault();
+
+    if (!ens.startsWith("auth")) {
+      alert(`Invalid ENS subdomain (must begin with auth)`);
+      return;
+    }
+
     navigate("/prover/" + ens);
   };
 

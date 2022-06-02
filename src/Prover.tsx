@@ -36,6 +36,11 @@ export default function Prover() {
     return <></>;
   }
 
+  if (!ens.startsWith("auth")) {
+    alert(`Invalid ENS subdomain (must begin with auth)`);
+    return <></>;
+  }
+
   const sign = async (message: string) => {
     if (signing) {
       return;

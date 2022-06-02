@@ -42,27 +42,39 @@ export default function Verifier({ message }: { message: string }) {
   const doVerifyData = async (data: string) => {
     const [signature, ens] = data.split(";");
 
-    const signer = ethers.utils.verifyMessage(message, signature);
-    var authAddress = await provider.resolveName("auth." + ens);
+    if (!ens.startsWith("auth")) {
+      setAuthenticationState(
+        `❌ Invalid ENS subdomain: must begin with auth: ${ens}`
+      );
+      return;
+    }
 
-    console.log(signer);
+    const signer = ethers.utils.verifyMessage(message, signature);
+    var authAddress = await provider.resolveName(ens);
+
+    if (authAddress == null) {
+      setAuthenticationState(
+        `❌ Invalid ENS subdomain: does not exist: ${ens}`
+      );
+      return;
+    }
 
     if (signer !== authAddress) {
       setAuthenticationState(
-        `❌ Wrong signature. Auth/Signer mismatch: ${authAddress}/${signer}`
+        `❌ Invalid signature: Auth/Signer mismatch: ${authAddress}/${signer}`
       );
       return;
     }
     setAuthenticationState("✅");
 
     if (!!token) {
-      const wallet = await provider.resolveName(ens);
+      const wallet = await provider.resolveName(ens.split(".", 1)[1]);
       console.log(tokenAddress, wallet);
       const balance = await token.balanceOf(wallet);
       if (balance.gt(0)) {
         setTokenVerificationState("✅");
       } else {
-        setTokenVerificationState("❌ insufficient");
+        setTokenVerificationState("❌ insufficient token balance");
         return;
       }
     }
