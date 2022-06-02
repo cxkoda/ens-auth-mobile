@@ -19,9 +19,7 @@ html {
 }
 
 .qr {
-  filter: invert();
-  width: 110%;
-  margin: 0% -5%;
+  width: 100%;
 }
 
 button {
