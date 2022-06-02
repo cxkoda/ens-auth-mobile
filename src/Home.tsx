@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import { useState, useRef } from "react";
-import "./App.css";
 
 function Home() {
   const navigate = useNavigate();
@@ -33,10 +32,10 @@ function Home() {
   };
 
   return (
-    <div>
+    <div className="Home">
       <form onSubmit={handleVerifier}>
         <label>
-          Token address:
+          Token address
           <input
             name="tokenAddress"
             type="text"
@@ -52,7 +51,7 @@ function Home() {
 
       <form onSubmit={handleProver}>
         <label>
-          Auth ENS:
+          Auth ENS
           <input
             name="ens"
             type="text"

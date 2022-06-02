@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import QRCode from "qrcode";
 import { useParams } from "react-router-dom";
 import Scanner from "./Scanner";
+import "./App.css";
 
 const verifyMessage = async ({
   message,
@@ -57,8 +58,6 @@ export default function Prover() {
         })
         .catch((err: { code: number }) => {
           if (err.code === 4001) {
-            // EIP-1193 userRejectedRequest error
-            // If this happens, the user rejected the connection request.
             console.log("Please connect to MetaMask.");
           } else {
             console.error(err);
@@ -94,8 +93,9 @@ export default function Prover() {
 
   return (
     <div>
+      <h3>Proving: {ens}</h3>
       <Scanner onRead={sign} />
-      <img src={sigQR} />
+      <img src={sigQR} className="qr" />
     </div>
   );
 }

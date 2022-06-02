@@ -9,8 +9,8 @@ export default function Scanner({
   onRead: (data: string) => void;
 }) {
   const previewStyle = {
-    height: 320,
-    width: 320,
+    height: "100%",
+    width: "100%",
   };
 
   return (

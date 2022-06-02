@@ -30,6 +30,8 @@ export default function Verifier({ message }: { message: string }) {
   const [tokenVerificationState, setTokenVerificationState] = useState("");
   const [processing, setProcessing] = useState(false);
 
+  const [walletENS, setWalletENS] = useState("");
+
   const verifyData = async (data: string) => {
     if (processing) {
       return;
@@ -48,6 +50,9 @@ export default function Verifier({ message }: { message: string }) {
       );
       return;
     }
+
+    const wallet = ens.split(".", 1)[1];
+    setWalletENS(wallet);
 
     const signer = ethers.utils.verifyMessage(message, signature);
     var authAddress = await provider.resolveName(ens);
@@ -68,13 +73,13 @@ export default function Verifier({ message }: { message: string }) {
     setAuthenticationState("✅");
 
     if (!!token) {
-      const wallet = await provider.resolveName(ens.split(".", 1)[1]);
-      console.log(tokenAddress, wallet);
-      const balance = await token.balanceOf(wallet);
+      const walletAddress = await provider.resolveName(wallet);
+      console.log(tokenAddress, walletAddress);
+      const balance = await token.balanceOf(walletAddress);
       if (balance.gt(0)) {
         setTokenVerificationState("✅");
       } else {
-        setTokenVerificationState("❌ insufficient token balance");
+        setTokenVerificationState("❌ insufficient");
         return;
       }
     }
@@ -83,8 +88,13 @@ export default function Verifier({ message }: { message: string }) {
   return (
     <div>
       <Scanner onRead={verifyData} />
-      {<p>Authentication: {AuthenticationState}</p>}
-      {token && <p>Token: {tokenVerificationState}</p>}
+      {
+        <p>
+          Authentication: {walletENS !== "" && `(${walletENS})`}{" "}
+          {AuthenticationState}
+        </p>
+      }
+      {token && <p>Token balance: {tokenVerificationState}</p>}
       {processing && <p>⏳ Processing...</p>}
     </div>
   );

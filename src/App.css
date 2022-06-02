@@ -1,0 +1,72 @@
+html {
+  background-color: black;
+}
+
+.App {
+  background-color: black;
+  color: white;
+  width: 100%;
+  font-size: 1.5em;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.App > div {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px 0px;
+}
+
+.qr {
+  filter: invert();
+  width: 110%;
+  margin: 0% -5%;
+}
+
+button {
+  font-size: inherit;
+  background-color: inherit;
+  color: inherit;
+  border: 1px solid white;
+  padding: 5px 10px;
+}
+
+h3,
+h4 {
+  word-wrap: break-word;
+}
+
+input[type="text"] {
+  font-size: 1.2rem;
+  background-color: inherit;
+  color: inherit;
+  border: 1px solid white;
+  display: inline-block;
+}
+
+button[type="submit"]:hover {
+  color: black;
+  background-color: white;
+}
+
+.Home form {
+  margin-top: 80px;
+  width: 100%;
+}
+
+.Home input[type="text"],
+.Home button {
+  width: 100%;
+  margin: 0px;
+  padding: 5px 10px;
+  box-sizing: border-box;
+}
+
+.Home input[type="text"] {
+  margin-top: 10px;
+}
+
+label {
+  padding: 5px;
+}
