@@ -39,7 +39,7 @@ export default function Verifier({ message }: { message: string }) {
       return;
     }
 
-    const wallet = ens.split(".", 1)[1];
+    const wallet = ens.split(".").slice(1).join(".");
     setWalletENS(wallet);
 
     const signer = ethers.utils.verifyMessage(message, signature);
@@ -62,6 +62,7 @@ export default function Verifier({ message }: { message: string }) {
 
     if (!!token) {
       const walletAddress = await provider.resolveName(wallet);
+      console.log(walletAddress);
       console.log(tokenAddress, walletAddress);
       const balance = await token.balanceOf(walletAddress);
       if (balance.gt(0)) {
