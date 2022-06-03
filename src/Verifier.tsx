@@ -32,7 +32,8 @@ export default function Verifier({ message }: { message: string }) {
   const doVerifyData = async (data: string) => {
     const [signature, authENS] = data.split(";");
 
-    if (!authENS.startsWith("auth")) {
+    const authMatch = authENS.match(/^(auth[0-9]*)\.(.*)/);
+    if (!authMatch) {
       setAuthenticationState(
         `❌ Invalid ENS subdomain: must begin with auth: ${authENS}`
       );
