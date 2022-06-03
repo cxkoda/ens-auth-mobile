@@ -18,7 +18,7 @@ export default function Verifier({ message }: { message: string }) {
   const [tokenVerificationState, setTokenVerificationState] = useState("");
   const [processing, setProcessing] = useState(false);
 
-  const [walletENS, setWalletENS] = useState("");
+  const [mainENS, setMainENS] = useState("");
 
   const verifyData = async (data: string) => {
     if (processing) {
@@ -30,24 +30,24 @@ export default function Verifier({ message }: { message: string }) {
   };
 
   const doVerifyData = async (data: string) => {
-    const [signature, ens] = data.split(";");
+    const [signature, authENS] = data.split(";");
 
-    if (!ens.startsWith("auth")) {
+    if (!authENS.startsWith("auth")) {
       setAuthenticationState(
-        `❌ Invalid ENS subdomain: must begin with auth: ${ens}`
+        `❌ Invalid ENS subdomain: must begin with auth: ${authENS}`
       );
       return;
     }
 
-    const wallet = ens.split(".").slice(1).join(".");
-    setWalletENS(wallet);
+    const mainENSLoc = authENS.split(".").slice(1).join(".");
+    setMainENS(mainENSLoc);
 
     const signer = ethers.utils.verifyMessage(message, signature);
-    var authAddress = await provider.resolveName(ens);
+    var authAddress = await provider.resolveName(authENS);
 
     if (authAddress == null) {
       setAuthenticationState(
-        `❌ Invalid ENS subdomain: does not exist: ${ens}`
+        `❌ Invalid ENS subdomain: does not exist: ${authENS}`
       );
       return;
     }
@@ -61,10 +61,8 @@ export default function Verifier({ message }: { message: string }) {
     setAuthenticationState("✅");
 
     if (!!token) {
-      const walletAddress = await provider.resolveName(wallet);
-      console.log(walletAddress);
-      console.log(tokenAddress, walletAddress);
-      const balance = await token.balanceOf(walletAddress);
+      const mainAddress = await provider.resolveName(mainENSLoc);
+      const balance = await token.balanceOf(mainAddress);
       if (balance.gt(0)) {
         setTokenVerificationState("✅");
       } else {
@@ -79,7 +77,7 @@ export default function Verifier({ message }: { message: string }) {
       <Scanner onRead={verifyData} />
       {
         <p>
-          Authentication: {walletENS !== "" && `(${walletENS})`}{" "}
+          Authentication: {mainENS !== "" && `(${mainENS})`}{" "}
           {AuthenticationState}
         </p>
       }
